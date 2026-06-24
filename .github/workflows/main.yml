@@ -1,4 +1,4 @@
-name: Build Android App
+name: Android Build
 
 on:
   push:
@@ -11,32 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. שליפת הקוד מהמאגר
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. הגדרת סביבת Java (מומלץ JDK 17 לפרויקטים מודרניים של אנדרואיד)
-    - name: set up JDK 17
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
-        distribution: 'zulu'
-        cache: gradle
+        distribution: 'temurin'
+        cache: 'gradle'
 
-    # 3. מתן הרשאות הרצה לקובץ ה-Gradlew
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: wrapper
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      # הערה: אם התיקייה screen-main היא תיקיית משנה בתוך הריפו, יש להוסיף בשורה הבאה:
-      # working-directory: screen-main
 
-    # 4. הרצת הקימפול ובניית קובץ ה-APK (בגרסת Debug)
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
-      # working-directory: screen-main
+      run: ./gradlew :app:assembleDebug
 
-    # 5. שמירת קובץ ה-APK המוכן כתוצר (Artifact) להורדה
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
-        path: screen-main/app/build/outputs/apk/debug/app-debug.apk
+        name: app-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
