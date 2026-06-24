@@ -1,3 +1,5 @@
+- name: Setup Gradle
+  uses: gradle/gradle-build-action@v3
 name: Android CI (Gradle Build v2)
 
 on:
