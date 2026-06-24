@@ -1,6 +1,9 @@
 package com.example.screentool
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,53 +14,66 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
+    private val OVERLAY_PERMISSION_REQ_CODE = 1234
+    private val SCREEN_CAPTURE_REQ_CODE = 5678
+    private lateinit var mediaProjectionManager: MediaProjectionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        // יצירת כפתור תוכנתי ללא תלות בקובצי ה-XML של ה-res
-        val btn = Button(this).apply {
-            text = "Start Floating Tool"
-            setOnClickListener {
-                HandleServiceStart()
-            }
-        }
+        mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val btnToggleService = findViewById<Button>(R.id.btnToggleService)
 
-        setContentView(btn)
-    }
-
-    private fun HandleServiceStart() {
-        // בדיקה: אם המכשיר הוא אנדרואיד 6.0 (API 23) ומעלה, יש לבקש הרשאת חלון צף בזמן ריצה
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                // פתיחת מסך הגדרות המערכת כדי שהמשתמש יאשר את הבועה הצפה
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
-                startActivityForResult(intent, 1234)
-                Toast.makeText(this, "Please enable overlay permission", Toast.LENGTH_LONG).show()
+        btnToggleService.setOnClickListener {
+            if (!checkOverlayPermission()) {
+                requestOverlayPermission()
             } else {
-                // ההרשאה כבר קיימת - מפעילים את השירות
-                startFloatingService()
+                // אם יש הרשאת בועה, מבקשים אישור ללכידת מסך
+                startActivityForResult(
+                    mediaProjectionManager.createScreenCaptureIntent(),
+                    SCREEN_CAPTURE_REQ_CODE
+                )
             }
-        } else {
-            // במכשיר האנדרואיד 4.4 (KitKat) שלך - אין צורך בבדיקה, מפעילים מיד!
-            startFloatingService()
         }
     }
 
-    private fun startFloatingService() {
-        startService(Intent(this@MainActivity, FloatingBubbleService::class.java))
+    private fun checkOverlayPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        } else {
+            true
+        }
     }
 
-    // תפיסת התשובה מההגדרות (עבור מכשירים מודרניים)
+    private fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1234) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
-                startFloatingService()
+        
+        if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
+            if (checkOverlayPermission()) {
+                Toast.makeText(this, "ההרשאה אושרה! לחץ שוב להפעלה", Toast.LENGTH_SHORT).show()
+            }
+        } else if (requestCode == SCREEN_CAPTURE_REQ_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                // מעבירים את אישור הלכידה ישירות לשירות של הבועה הצפה
+                val serviceIntent = Intent(this, FloatingBubbleService::class.java).apply {
+                    putExtra("RESULT_CODE", resultCode)
+                    putExtra("DATA_INTENT", data)
+                }
+                startService(serviceIntent)
+                finish() // סוגר את האפליקציה כדי שתוכל לצלם מסכים אחרים
             } else {
-                Toast.makeText(this, "Permission denied. Cannot start tool.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "חובה לאשר לכידת מסך כדי שהאפליקציה תעבוד", Toast.LENGTH_LONG).show()
             }
         }
     }
