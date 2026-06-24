@@ -13,4 +13,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-// ... שאר הגדרות הפרויקט
+
+rootProject.name = "screen"
+
+// השורה שחובה לוודא שקיימת כדי ש-Gradle יזהה את תיקיית האפליקציה:
+include ':app'
