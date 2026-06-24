@@ -1,33 +1,26 @@
 package com.example.screentool
 
-import android.app.*
+import android.app.Service
 import android.content.Intent
-import android.media.projection.MediaProjectionManager
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
+import android.widget.Toast
 
-class ScreenService : Service() {
+class FloatingBubbleService : Service() {
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        startForeground(1, notification())
-
-        return START_NOT_STICKY
+        Toast.makeText(this, "Floating Tool Started!", Toast.LENGTH_SHORT).show()
+        
+        // כאן יבוא קוד הבועה הצפה והנראות שלה על המסך בהמשך
+        
+        return START_STICKY
     }
 
-    private fun notification(): Notification {
-        val id = "screen"
-
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            val ch = NotificationChannel(id, "screen", NotificationManager.IMPORTANCE_LOW)
-            getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
-        }
-
-        return NotificationCompat.Builder(this, id)
-            .setContentTitle("ScreenTool running")
-            .setSmallIcon(android.R.drawable.presence_video_online)
-            .build()
+    override fun onDestroy() {
+        super.onDestroy()
+        Toast.makeText(this, "Floating Tool Stopped", Toast.LENGTH_SHORT).show()
     }
-
-    override fun onBind(intent: Intent?): IBinder? = null
 }
