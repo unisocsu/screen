@@ -9,13 +9,15 @@ android {
 
     defaultConfig {
         applicationId "com.example.screentool"
-        minSdk 19 // תמיכה מוגדרת עבור Android 4.4 KitKat
+        minSdk 19 // תמיכה מלאה ב-Android 4.4 KitKat
         targetSdk 34
         versionCode 1
         versionName "1.0"
         
-        // הפעלת MultiDex חובה עבור מכשירים ישנים למניעת שגיאות בניתוח החבילה וקריסות
-        multiDexEnabled true 
+        multiDexEnabled true // מונע שגיאות בניתוח החבילה במכשירים ישנים
+        
+        // חובה עבור Android 4.4 - מאפשר שימוש באייקוני וקטור מודרניים ללא קריסה
+        vectorDrawables.useSupportLibrary = true 
     }
 
     buildTypes {
@@ -35,8 +37,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1' // שונמך מ-1.7.0 כדי לאפשר תמיכה ב-API 19
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.multidex:multidex:2.0.1' // תוספת ספריית תמיכה ב-MultiDex למכשירים ישנים
+    // גרסאות משונמכות ומותאמות במיוחד שיאפשרו לאפליקציה לרוץ על API 19:
+    implementation 'androidx.core:core-ktx:1.9.0' 
+    implementation 'androidx.appcompat:appcompat:1.4.2' 
+    implementation 'com.google.android.material:material:1.5.0' 
+    implementation 'androidx.multidex:multidex:2.0.1' 
 }
