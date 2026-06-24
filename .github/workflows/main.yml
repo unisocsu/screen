@@ -5,7 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # מאפשר לך להריץ את הבנייה באופן ידני בלחיצת כפתור בטאב Actions
+  workflow_dispatch: # מאפשר להריץ את הבנייה ידנית בלחיצת כפתור בטאב Actions
 
 jobs:
   build:
@@ -28,14 +28,15 @@ jobs:
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
-    # שלב עוקף נטפרי: משנים את שם קובץ ה-APK לגרסת קובץ נתונים (.dat) כדי שהסינון לא יחסום את ההורדה שלו
+    # שלב עוקף נטפרי: משנים את שם הקובץ לשם תמים לחלוטין עם סיומת של תמונה (png)
+    # כדי שמערכת הסינון לא תזהה קישורים עם מילים כמו app או debug
     - name: Prepare File for NetFree Bypass
       run: |
-        mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/app-debug.dat
+        mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/screentool.png
 
-    # העלאת הקובץ לשרתי גיטהאב לצורך הורדה
+    # העלאת הקובץ לשרתי גיטהאב תחת שם ארטיפקט סטרילי ונקי לחלוטין מחסימות
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Android-App-Safe-Download
-        path: app/build/outputs/apk/debug/app-debug.dat
+        name: project-image-assets
+        path: app/build/outputs/apk/debug/screentool.png
