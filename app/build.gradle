@@ -30,6 +30,5 @@ android {
 }
 
 dependencies {
-    // הגדרה ידנית שמונעת מקוטלין להזריק את זה עצמאית בשלב מאוחר מדי
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
+    // ריק לחלוטין! פרויקט נייטיב טהור ללא התנגשויות
 }
