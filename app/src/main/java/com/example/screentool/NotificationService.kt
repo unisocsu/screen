@@ -33,7 +33,11 @@ class NotificationService : Service() {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "Screen Capture", NotificationManager.IMPORTANCE_HIGH)
+            val channel = NotificationChannel(
+                CHANNEL_ID, 
+                "Screen Capture", 
+                NotificationManager.IMPORTANCE_HIGH
+            )
             manager.createNotificationChannel(channel)
         }
 
@@ -49,7 +53,6 @@ class NotificationService : Service() {
 
         val pendingIntent = PendingIntent.getService(this, 0, intent, pendingFlags)
 
-        // יצירת ההתראה באמצעות ה-Builder המובנה של אנדרואיד
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(this, CHANNEL_ID)
         } else {
@@ -60,7 +63,8 @@ class NotificationService : Service() {
         val notification = builder
             .setContentTitle("כלי צילום מסך")
             .setContentText("לחץ כאן כדי לצלם את המסך הנוכחי")
-            .setSmallIcon(android.R.drawable.ic_menu_camera)
+            // שימוש באייקון מערכתי פומבי שזמין בכל הגרסאות ללא שגיאות
+            .setSmallIcon(android.R.drawable.stat_sys_download_done) 
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
@@ -85,7 +89,7 @@ class NotificationService : Service() {
             Toast.makeText(this, "המסך צולם ונשמר בגלריה!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "שגיאה בצילום המסך", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "שגיאה בצילום המסך (האם המכשיר ב-ROOT?)", Toast.LENGTH_LONG).show()
         }
     }
 }
