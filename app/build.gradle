@@ -30,5 +30,6 @@ android {
 }
 
 dependencies {
-    // מרוקן לחלוטין כדי למנוע התנגשויות סינון בשרת הבנייה!
+    // הגדרה ידנית שמונעת מקוטלין להזריק את זה עצמאית בשלב מאוחר מדי
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
 }
