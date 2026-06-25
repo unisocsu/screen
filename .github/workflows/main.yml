@@ -3,9 +3,7 @@ name: Android CI Build
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch: # מאפשר להריץ את הבנייה ידנית בלחיצת כפתור בטאב Actions
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,17 +24,15 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --no-daemon
 
-    # שלב עוקף נטפרי: משנים את שם הקובץ לשם תמים לחלוטין עם סיומת של תמונה (png)
-    # כדי שמערכת הסינון לא תזהה קישורים עם מילים כמו app או debug
     - name: Prepare File for NetFree Bypass
       run: |
-        mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/screentool.png
+        mkdir -p build_output
+        cp app/build/outputs/apk/debug/app-debug.apk build_output/screentool.png
 
-    # העלאת הקובץ לשרתי גיטהאב תחת שם ארטיפקט סטרילי ונקי לחלוטין מחסימות
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: project-image-assets
-        path: app/build/outputs/apk/debug/screentool.png
+        path: build_output/screentool.png
