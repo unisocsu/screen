@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.screentool"
-        minSdk 19
+        minSdk 19 // תמיכה באנדרואיד 4.4 KitKat
         targetSdk 34
         versionCode 1
         versionName "1.0"
